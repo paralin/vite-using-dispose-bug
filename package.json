@@ -1,0 +1,14 @@
+{
+  "name": "vite-using-bug-reproducer",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.15",
+    "typescript": "^5.7.2",
+    "vite": "^7.2.7"
+  }
+}
