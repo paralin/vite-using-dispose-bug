@@ -1,5 +1,15 @@
 # Vite `using` Statement Transpilation Bug Reproducer
 
+> **RESOLVED:** This bug has been fixed in **Rollup 4.53.4**. Update your rollup dependency to get the fix.
+>
+> - Vite issue: [vitejs/vite#21280](https://github.com/vitejs/vite/issues/21280)
+> - Rollup issue: [rollup/rollup#6208](https://github.com/rollup/rollup/issues/6208)
+> - Rollup fix: [rollup/rollup#6209](https://github.com/rollup/rollup/pull/6209) by [@lukastaegert](https://github.com/lukastaegert)
+>
+> This repository is now archived.
+
+---
+
 ## Summary
 
 Vite's production build incorrectly transpiles inline `using` declarations with `[Symbol.dispose]`, replacing the entire object literal with an empty object `{}` and losing the dispose callback entirely.
@@ -89,7 +99,19 @@ async function p(t) {
 - No errors are thrown - it silently fails
 - Code appears to work in tests but cleanup never happens in production
 
-## Workaround
+## Fix
+
+Upgrade to Rollup 4.53.4 or later:
+
+```bash
+npm install rollup@^4.53.4
+```
+
+The fix handles both `using` with `Symbol.dispose` and `await using` with `Symbol.asyncDispose`.
+
+---
+
+## Workaround (for older Rollup versions)
 
 Use `try/finally` instead of `using`:
 

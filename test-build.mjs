@@ -15,9 +15,15 @@ import {
   variant8_spread,
   variant9_cachedSymbol,
   variant10_iife,
+  variant11_awaitUsingInline,
+  variant12_awaitUsingSeparate,
+  variant13_awaitUsingFactory,
+  variant14_awaitUsingClass,
+  variant15_awaitUsingBoth,
+  variant16_usingWithAsyncDispose,
 } from './dist/using-variants.js'
 
-const variants = [
+const syncVariants = [
   { name: 'variant1_inlineComputed', fn: variant1_inlineComputed, desc: 'Inline object with [Symbol.dispose]' },
   { name: 'variant2_predefinedFunction', fn: variant2_predefinedFunction, desc: 'Pre-defined dispose function' },
   { name: 'variant3_separateObject', fn: variant3_separateObject, desc: 'Separate object, then using' },
@@ -30,10 +36,19 @@ const variants = [
   { name: 'variant10_iife', fn: variant10_iife, desc: 'IIFE returning disposable' },
 ]
 
-console.log('Testing vite build output for using statement variants\n')
-console.log('='.repeat(70))
+const asyncVariants = [
+  { name: 'variant11_awaitUsingInline', fn: variant11_awaitUsingInline, desc: 'await using with inline [Symbol.asyncDispose]' },
+  { name: 'variant12_awaitUsingSeparate', fn: variant12_awaitUsingSeparate, desc: 'await using with separate object' },
+  { name: 'variant13_awaitUsingFactory', fn: variant13_awaitUsingFactory, desc: 'await using with factory function' },
+  { name: 'variant14_awaitUsingClass', fn: variant14_awaitUsingClass, desc: 'await using with class' },
+]
 
-for (const { name, fn, desc } of variants) {
+const mixedVariants = [
+  { name: 'variant15_awaitUsingBoth_async', fn: variant15_awaitUsingBoth, desc: 'await using with both symbols (should use asyncDispose)' },
+  { name: 'variant16_usingWithAsyncDispose_sync', fn: variant16_usingWithAsyncDispose, desc: 'using with both symbols (should use dispose)' },
+]
+
+async function testVariant(name, fn, desc) {
   disposeLog.length = 0
   
   try {
@@ -53,6 +68,28 @@ for (const { name, fn, desc } of variants) {
     console.log(`         ${e.message}`)
   }
   console.log()
+}
+
+console.log('Testing vite build output for using statement variants\n')
+console.log('='.repeat(70))
+console.log('\n## using with Symbol.dispose\n')
+
+for (const { name, fn, desc } of syncVariants) {
+  await testVariant(name, fn, desc)
+}
+
+console.log('='.repeat(70))
+console.log('\n## await using with Symbol.asyncDispose\n')
+
+for (const { name, fn, desc } of asyncVariants) {
+  await testVariant(name, fn, desc)
+}
+
+console.log('='.repeat(70))
+console.log('\n## Mixed variants (both symbols)\n')
+
+for (const { name, fn, desc } of mixedVariants) {
+  await testVariant(name, fn, desc)
 }
 
 console.log('='.repeat(70))

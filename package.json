@@ -7,8 +7,11 @@
     "build": "vite build"
   },
   "devDependencies": {
-    "vitest": "^4.0.15",
     "typescript": "^5.7.2",
-    "vite": "^7.2.7"
+    "vite": "^7.2.7",
+    "vitest": "^4.0.15"
+  },
+  "dependencies": {
+    "rollup": "^4.53.4"
   }
 }
