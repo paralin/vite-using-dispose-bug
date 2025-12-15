@@ -12,9 +12,15 @@ import {
   variant8_spread,
   variant9_cachedSymbol,
   variant10_iife,
+  variant11_awaitUsingInline,
+  variant12_awaitUsingSeparate,
+  variant13_awaitUsingFactory,
+  variant14_awaitUsingClass,
+  variant15_awaitUsingBoth,
+  variant16_usingWithAsyncDispose,
 } from '../src/using-variants'
 
-describe('using statement variants', () => {
+describe('using statement variants (Symbol.dispose)', () => {
   beforeEach(() => {
     disposeLog.length = 0
   })
@@ -39,4 +45,47 @@ describe('using statement variants', () => {
       expect(disposeLog).toContain(name)
     })
   }
+})
+
+describe('await using statement variants (Symbol.asyncDispose)', () => {
+  beforeEach(() => {
+    disposeLog.length = 0
+  })
+
+  const asyncVariants = [
+    { name: 'variant11_awaitUsingInline', fn: variant11_awaitUsingInline, desc: 'await using with inline [Symbol.asyncDispose]' },
+    { name: 'variant12_awaitUsingSeparate', fn: variant12_awaitUsingSeparate, desc: 'await using with separate object' },
+    { name: 'variant13_awaitUsingFactory', fn: variant13_awaitUsingFactory, desc: 'await using with factory function' },
+    { name: 'variant14_awaitUsingClass', fn: variant14_awaitUsingClass, desc: 'await using with class' },
+  ]
+
+  for (const { name, fn, desc } of asyncVariants) {
+    it(`${desc} (${name})`, async () => {
+      const stream = createStream(['a', 'b'])
+      await fn(stream)
+      expect(disposeLog).toContain(name)
+    })
+  }
+})
+
+describe('mixed dispose/asyncDispose variants', () => {
+  beforeEach(() => {
+    disposeLog.length = 0
+  })
+
+  it('await using with both symbols should use asyncDispose (variant15)', async () => {
+    const stream = createStream(['a', 'b'])
+    await variant15_awaitUsingBoth(stream)
+    // Per spec: await using prefers Symbol.asyncDispose over Symbol.dispose
+    expect(disposeLog).toContain('variant15_awaitUsingBoth_async')
+    expect(disposeLog).not.toContain('variant15_awaitUsingBoth_sync')
+  })
+
+  it('using with both symbols should use dispose (variant16)', async () => {
+    const stream = createStream(['a', 'b'])
+    await variant16_usingWithAsyncDispose(stream)
+    // Per spec: using uses Symbol.dispose only
+    expect(disposeLog).toContain('variant16_usingWithAsyncDispose_sync')
+    expect(disposeLog).not.toContain('variant16_usingWithAsyncDispose_async')
+  })
 })
